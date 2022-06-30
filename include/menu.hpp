@@ -2,7 +2,7 @@ using namespace std;
 
 const string lineTab = "\n\n\t\t\t\t\t\t";
 const string textTab = "\n\t\t\t\t\t\t";
-const string mapTab = "\n\t\t\t";
+const string mapTab = "\n\t\t";
 
 // Game title
 void gameTitle()

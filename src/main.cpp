@@ -7,14 +7,23 @@
 
 using namespace std;
 
+// To set color console text
+void setColor(unsigned short color)
+{
+    HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hCon, color);
+}
+
 int main()
 {
     // Var declaration
     int playerInput;
+    int battleResult;
     int mapIndex = 0;
 
     // Definie player struct
     Hero mainPlayer;
+    mainPlayer.gold = 0;
 
     // Play main bgm
     PlaySound(TEXT("../audio/intro_bgm.wav"), NULL, SND_LOOP | SND_ASYNC);
@@ -25,7 +34,7 @@ int main()
     {
         cout << "Game exitted...\n";
         getch();
-        return 0;
+        return 0; 
     }
 
     // Input player name
@@ -40,8 +49,11 @@ int main()
         // Print map, player info, etc
         printInterface(mainPlayer, mapIndex);
 
+        // Check player position
+        checkPlayerPosition(mapIndex, mainPlayer);
+
         // Input and check player movement
-        inputPlayerMovement(&playerInput, mapIndex);
+        inputPlayerKey(&playerInput, mapIndex);
         if (playerInput == KEY_Y || playerInput == KEY_Y_CAPS)
         {
             break;
