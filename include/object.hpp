@@ -11,9 +11,41 @@ struct Hero
     int def;
     int gold;
 
+    // Attack function
     void doAttack(int *monsterHp, int *monsterDef)
     {
-        *monsterHp = *monsterHp - (atk - *monsterDef);
+        int damage = ((atk / *monsterDef) * atk);
+        *monsterHp = *monsterHp - ((atk / *monsterDef) * atk);
+
+        cout << textTab + "You deal " << damage << " damage";
+        cout << " with basic attack!\n";
+    }
+
+    // Skill function
+    void doSkill(int *monsterHp, int *monsterDef)
+    {
+        if (heroRole == "Swords")
+        {
+            cout << textTab + "Hawk-eye..!!\n";
+        }
+        else if (heroRole == "Spears")
+        {
+            cout << textTab + "Heavenly restriction..!!\n";
+        }
+        else if (heroRole == "Archer")
+        {
+            cout << textTab + "Electrobolt..!!\n";
+        }
+        else if (heroRole == "Shield")
+        {
+            cout << textTab + "Machine God..!!\n";
+        }
+
+        int damage = ((atk * 5 / *monsterDef) * atk);
+        *monsterHp = *monsterHp - ((atk * 5 / *monsterDef) * atk);
+
+        cout << textTab + "You deal " << damage << " damage";
+        cout << " with skill attack!\n";
     }
 };
 
@@ -25,6 +57,15 @@ struct Monster
     int hp;
     int atk;
     int def;
+
+    void doAttack(int *heroHp, int *heroDef)
+    {
+        int damage = ((atk / *heroDef) * atk);
+        *heroHp = *heroHp - ((atk / *heroDef) * atk);
+
+        cout << textTab + "The monster deal " << damage << " damage";
+        cout << " to you!\n";
+    }
 };
 
 // Weapon class
@@ -34,6 +75,7 @@ struct Weapon
     int level;
     int damage;
     int shield;
+    int price;
 };
 
 // Item class
@@ -43,6 +85,7 @@ struct Item
     int damage;
     int shield;
     int heal;
+    int price;
 };
 
 // Define list of hero
@@ -55,10 +98,10 @@ Hero heroList[] = {
 
 // Define list of monster
 Monster monsterList[] = {
-    {"Ashtoleton", "Regular", 100, 10, 10},
-    {"Inferghoul", "Regular", 150, 15, 15},
-    {"Toxhound", "Commander", 300, 20, 20},
-    {"Demon serpent", "Boss", 700, 50, 50},
+    {"Ashtoleton", "Regular", 500, 40, 35},
+    {"Inferghoul", "Regular", 650, 45, 40},
+    {"Toxhound", "Commander", 700, 55, 50},
+    {"Demon serpent", "Boss", 1200, 75, 70},
 };
 
 // To set color console text
@@ -67,6 +110,7 @@ void setColor(unsigned short);
 // Get input for player hero
 void inputPlayerDetails(Hero &player)
 {
+    // Variable declaration
     int index;
     char inputHero;
     string name;
@@ -74,18 +118,22 @@ void inputPlayerDetails(Hero &player)
     system("cls");
     gameTitle();
 
-    cout << textTab << "Enter your name: ";
+    // Input player name
+    cout << "\n\n\n\n\n" + textTab + "Enter your name: ";
     getline(cin, name);
     player.playerName = name;
 
+    system("cls");
+    gameTitle();
+
     // Select hero
 inputHero:
-    cout << lineTab + "Select your hero!\n";
-    cout << textTab + "1. " + heroList[0].heroName + "\n";
-    cout << textTab + "2. " + heroList[1].heroName + "\n";
-    cout << textTab + "3. " + heroList[2].heroName + "\n";
-    cout << textTab + "4. " + heroList[3].heroName + "\n";
-    cout << textTab + "Select (1-5): ";
+    cout << "\n\n" + lineTab + "\tSelect your hero!\n";
+    cout << textTab + "\t1. " + heroList[0].heroName + "\n";
+    cout << textTab + "\t2. " + heroList[1].heroName + "\n";
+    cout << textTab + "\t3. " + heroList[2].heroName + "\n";
+    cout << textTab + "\t4. " + heroList[3].heroName + "\n";
+    cout << textTab + "\tSelect (1-4): ";
     cin >> inputHero;
 
     // Check for input
@@ -116,9 +164,12 @@ inputHero:
     player.def = heroList[index].def;
 }
 
+// Monster battle function
 void monsterBattle(char &monsterType, Hero &player)
 {
     Monster mainMonster;
+
+    // Check monster type
     if (monsterType == 'R')
     {
         srand(time(NULL));
@@ -141,10 +192,12 @@ void monsterBattle(char &monsterType, Hero &player)
     // Battle Loop
     while (true)
     {
+        srand(time(NULL));
+        int randomMonsterAttack = rand() % 2;
         system("cls");
 
-        char input_battle;
-        cout << textTab + "Battle!" << endl;
+        char inputBattle;
+        cout << textTab + "Battle!\n";
         cout << textTab + "Player HP  : ";
         setColor(10);
         cout << player.hp << endl;
@@ -153,14 +206,30 @@ void monsterBattle(char &monsterType, Hero &player)
         setColor(4);
         cout << mainMonster.hp << endl;
         setColor(7);
-        cout << textTab + "Press Q button to attack!";
-        input_battle = getch();
+        cout << textTab + "Press Q button to do basic attack,\n";
+        cout << textTab + "Press E button to do skill attack.\n";
+        inputBattle = getch();
 
-        if (input_battle == 'q' || input_battle == 'Q')
+        // Player attack
+        if (inputBattle == 'q' || inputBattle == 'Q')
         {
             player.doAttack(&mainMonster.hp, &mainMonster.def);
+            getch();
+        }
+        else if (inputBattle == 'e' || inputBattle == 'E')
+        {
+            player.doSkill(&mainMonster.hp, &mainMonster.def);
+            getch();
         }
 
+        // Monster attack
+        if (randomMonsterAttack == 1)
+        {
+            mainMonster.doAttack(&player.hp, &player.def);
+            getch();
+        }
+
+        // Condition when monster death
         if (mainMonster.hp <= 0)
         {
             break;

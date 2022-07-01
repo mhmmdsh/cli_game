@@ -20,10 +20,10 @@ using namespace std;
 // Global variable
 const int mapX = 61;
 const int mapY = 30;
-int playerX = 1;
-int playerY = 18;
-int enemies = 0;
+int playerX = 29;
+int playerY = 3;
 
+// Map class
 struct Map
 {
     string mapName;
@@ -37,13 +37,13 @@ struct Map
 *- _ = Soil                                - B = Boss monster
 *- * = Grass                               - $ = Treasure/gold
 *- # = Bush                                - V = Fire
-*- 8 = Water                               
-*- 1 = Sidewall / Tree Trunk               
-*- 0 = House                               
-*- O = Stone                               
-*- + = Windows                             
-*- H = Door                                
-*- [ = Fence                               
+*- 8 = Water
+*- 1 = Sidewall / Tree Trunk
+*- 0 = House
+*- O = Stone
+*- + = Windows
+*- H = Door
+*- [ = Fence
 *- | = Bridge
 *- ^ = Roof
 *- T = Tree Leave
@@ -123,6 +123,7 @@ Map listMap[] = {
     },
 };
 
+// Make main map for game
 Map mainMap[] = {listMap[0], listMap[1]};
 
 // To set color console text
@@ -131,26 +132,29 @@ void setColor(unsigned short);
 // Check player movement
 void checkPlayerMovement(int *checkInput, int &mapIndex, char &inputDirection)
 {
+    // Variable check for check map condition
     char check;
 
+    // Insert value to variable check
     if (inputDirection == 'W')
     {
-        check = listMap[mapIndex].mapContain[playerY - 1][playerX];
+        check = mainMap[mapIndex].mapContain[playerY - 1][playerX];
     }
     else if (inputDirection == 'S')
     {
-        check = listMap[mapIndex].mapContain[playerY + 1][playerX];
+        check = mainMap[mapIndex].mapContain[playerY + 1][playerX];
     }
     else if (inputDirection == 'A')
     {
-        check = listMap[mapIndex].mapContain[playerY][playerX - 1];
+        check = mainMap[mapIndex].mapContain[playerY][playerX - 1];
     }
     else if (inputDirection == 'D')
     {
-        check = listMap[mapIndex].mapContain[playerY][playerX + 1];
+        check = mainMap[mapIndex].mapContain[playerY][playerX + 1];
     }
-    
-    if (check == 'O' || check == '0' || check == '1' || check == '8' || check == '=')
+
+    // Checking for condition
+    if (check == 'O' || check == '0' || check == '1' || check == '8' || check == '=' || check == 'T')
     {
         *checkInput = 0;
     }
@@ -167,6 +171,9 @@ void inputPlayerKey(int *inputMovement, int &mapIndex)
     int checkInput = 1;
     char inputDirection;
     *inputMovement = getch();
+
+    // Play sound when player press the key
+    PlaySound(TEXT("../audio/player_move.wav"), NULL, SND_ASYNC);
 
     // Move player
     if (*inputMovement == KEY_W || *inputMovement == KEY_W_CAPS)
@@ -203,8 +210,9 @@ void inputPlayerKey(int *inputMovement, int &mapIndex)
         if (checkInput == 1)
         {
             playerX++;
-        }            
+        }
     }
+    // Esc menu option
     else if (*inputMovement == KEY_ESC)
     {
     escInput:
@@ -218,15 +226,15 @@ void inputPlayerKey(int *inputMovement, int &mapIndex)
         {
             mainMap[0] = listMap[0];
             mainMap[1] = listMap[1];
-            playerX = 1;
-            playerY = 18;
+            playerX = 3;
+            playerY = 29;
             mapIndex = 0;
 
             cout << "\n" + textTab + "Please wait, resetting the map..\n";
         }
         else if (*inputMovement == KEY_ESC)
         {
-            backToTheGame:
+        backToTheGame:
             cout << "\n" + textTab + "Return to the game..\n";
         }
         else if (*inputMovement == KEY_ENTER)
@@ -254,21 +262,25 @@ void inputPlayerKey(int *inputMovement, int &mapIndex)
             goto escInput;
         }
 
+        // Pause for 2 sec
         Sleep(2000);
     }
 }
 
 // Check player position
 void checkPlayerPosition(int &mapIndex, Hero &playerDetails)
-{    
+{
+    // Insert map value to variable
     char mapCheck = mainMap[mapIndex].mapContain[playerY][playerX];
 
+    // Check for condition (when in the monster location)
     if (mapCheck == 'R' || mapCheck == 'C' || mapCheck == 'B')
     {
+        PlaySound(TEXT("../audio/battle_bgm.wav"), NULL, SND_LOOP | SND_ASYNC);
         monsterBattle(mapCheck, playerDetails);
         mainMap[mapIndex].mapContain[playerY][playerX] = '_';
-        enemies--;
     }
+    // Check for condition (when in the treasure)
     else if (mapCheck == '$')
     {
         srand(time(NULL));
@@ -282,53 +294,77 @@ void checkPlayerPosition(int &mapIndex, Hero &playerDetails)
 void printPlayerInfo(Hero &playerDetails, int &mapIndex, int iterator)
 {
     switch (iterator)
+    {
+    case 0:
+        cout << "=====================================";
+        break;
+    case 2:
+        cout << "          PLAYER POSITION           =";
+        break;
+    case 4:
+        cout << "\tY: " << playerY << "\tX: " << playerX << "\t\t\t=";
+        break;
+    case 7:
+        cout << "            PLAYER INFO             =";
+        break;
+    case 9:
+        cout << "\tName: ";
+        cout << playerDetails.playerName << "\t\t\t=";
+        break;
+    case 11:
+        cout << "\tHero: ";
+        cout << playerDetails.heroName << "\t\t\t=";
+        break;
+    case 13:
+        cout << "\tRole: " << playerDetails.heroRole << "\t\t\t=";
+        break;
+    case 15:
+        setColor(10);
+        cout << "\tHp  : " << playerDetails.hp;
+        setColor(7);
+        cout << "\t\t\t=";
+        break;
+    case 17:
+        setColor(4);
+        cout << "\tAtk : " << playerDetails.atk;
+        setColor(7);
+        cout << "\t\t\t=";
+        break;
+    case 19:
+        setColor(9);
+        cout << "\tDef : " << playerDetails.def;
+        setColor(7);
+        cout << "\t\t\t=";
+        break;
+    case 21:
+        setColor(6);
+        if (playerDetails.gold > 99)
         {
-        case 0:
-            cout << "=====================================";
-            break;
-        case 2:
-            cout << "\t      PLAYER POSITION" << "\t\t=";
-            break;
-        case 4:
-            cout << "\tY: " << playerY << "\tX: " << playerX << "\t\t\t=";
-            break;
-        case 7:
-            cout << "\t\tPLAYER INFO" << "\t\t=";
-            break;
-        case 9:
-            cout << "\tName: " << playerDetails.playerName << "\t\t\t=";
-            break;
-        case 11:
-            cout << "\tHero: " << playerDetails.heroName << "\t\t\t=";
-            break;
-        case 13:
-            cout << "\tRole: " << playerDetails.heroRole << "\t\t\t=";
-            break;
-        case 15:
-            cout << "\tHp  : " << playerDetails.hp << "\t\t\t=";
-            break;
-        case 17:
-            cout << "\tAtk : " << playerDetails.atk << "\t\t\t=";
-            break;
-        case 19:
-            cout << "\tDef : " << playerDetails.def << "\t\t\t=";
-            break;
-        case 21:
-            cout << "\tGold: " << playerDetails.gold << "\t\t\t\t=";
-            break;
-        case 24:
-            cout << "\t\t  MAP INFO" << "\t\t=";
-            break;
-        case 26:
-            cout << "\tMap : " << mainMap[mapIndex].mapName << "\t\t\t=";
-            break;
-        case 29:
-            cout << "=====================================";
-            break;
-        default:
-            cout << "\t\t\t\t\t=";
-            break;
+            cout << "\tGold: " << playerDetails.gold;
+            setColor(7);
+            cout << "\t\t\t=";
         }
+        else
+        {
+            cout << "\tGold: " << playerDetails.gold;
+            setColor(7);
+            cout << "\t\t\t\t=";
+        }
+        break;
+    case 24:
+        cout << "              MAP INFO              =";
+        break;
+    case 26:
+        cout << "\tMap : " << mainMap[mapIndex].mapName << "\t\t\t=";
+        break;
+    case 29:
+        cout << "=====================================";
+        break;
+    default:
+        cout << "\t\t\t\t\t=";
+        break;
+    }
+    setColor(7);
 }
 
 // Print inteface (map, player info, etc)
@@ -351,11 +387,11 @@ void printInterface(Hero &playerDetails, int &mapIndex)
     for (int y = 0; y < mapY; y++)
     {
         cout << mapTab;
-        
+
         // Print map
         for (int x = 0; x < mapX; x++)
         {
-            char index = mainMap[mapIndex].mapContain[y][x];            
+            char index = mainMap[mapIndex].mapContain[y][x];
 
             if (index == '1' || index == '|' || index == '[' || index == ']' || index == '$')
             {
@@ -414,6 +450,7 @@ void printInterface(Hero &playerDetails, int &mapIndex)
             }
         }
 
+        // Call function to print player info
         printPlayerInfo(playerDetails, mapIndex, y);
     }
 }

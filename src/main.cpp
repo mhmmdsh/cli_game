@@ -14,11 +14,11 @@ void setColor(unsigned short color)
     SetConsoleTextAttribute(hCon, color);
 }
 
+// Main function
 int main()
 {
     // Var declaration
     int playerInput;
-    int battleResult;
     int mapIndex = 0;
 
     // Definie player struct
@@ -32,9 +32,9 @@ int main()
     int start = openMenu();
     if (start == 0)
     {
-        cout << "Game exitted...\n";
+        cout << textTab + "Game exitted...\n";
         getch();
-        return 0; 
+        return 0;
     }
 
     // Input player name
@@ -62,6 +62,7 @@ int main()
         {
             continue;
         }
+
     }
 
     // Game end
